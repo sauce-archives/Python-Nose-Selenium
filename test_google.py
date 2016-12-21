@@ -20,6 +20,9 @@ access_key = os.environ['SAUCE_ACCESS_KEY']
 
 def launchBrowser(caps):
     caps['name'] = inspect.stack()[1][3]
+    buildName = os.environ.get('JENKINS_BUILD_NUMBER') or os.environ.get('SAUCE_BAMBOO_BUILDNUMBER') or os.environ.get('SAUCE_TC_BUILDNUMBER') or os.environ.get('SAUCE_BUILD_NAME')
+    if buildName != None:
+        caps['build'] = buildName
     return webdriver.Remote(
             command_executor = "http://%s:%s@ondemand.saucelabs.com:80/wd/hub" % (username, access_key),
             desired_capabilities = caps);
