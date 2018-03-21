@@ -5,27 +5,20 @@ from nose.tools import with_setup
 from selenium import webdriver
 from sauceclient import SauceClient
 
-browsers = [{
+browser = {
     "platform": "Windows 10",
-    "browserName": "internet explorer",
-    "version": "11"
-}, {
-    "platform": "OS X 10.11",
-    "browserName": "safari",
-    "version": "9.0"
-}]
+    "browserName": "firefox",
+    "version": "47"
+}
 
 username = os.environ['SAUCE_USERNAME']
 access_key = os.environ['SAUCE_ACCESS_KEY']
 
-def launchBrowser(caps):
-    caps['name'] = inspect.stack()[1][3]
-    buildName = os.environ.get('JENKINS_BUILD_NUMBER') or os.environ.get('SAUCE_BAMBOO_BUILDNUMBER') or os.environ.get('SAUCE_TC_BUILDNUMBER') or os.environ.get('SAUCE_BUILD_NAME')
-    if buildName != None:
-        caps['build'] = buildName
-    return webdriver.Remote(
-            command_executor = "http://%s:%s@ondemand.saucelabs.com:80/wd/hub" % (username, access_key),
-            desired_capabilities = caps);
+caps = {}
+caps.update(browser)
+caps['name'] = inspect.stack()[1][3]
+caps['build'] = os.environ.get('SAUCE_BUILD_NAME') or 'nosebuild'
+
 
 def teardown_func():
     global driver
@@ -33,19 +26,19 @@ def teardown_func():
     sauce_client = SauceClient(username, access_key)
     status = sys.exc_info() == (None, None, None)
     sauce_client.jobs.update_job(driver.session_id, passed=status)
-    print "SauceOnDemandSessionID=%s job-name=%s" % (driver.session_id, "abc")
+    print("SauceOnDemandSessionID={} job-name={}".format(driver.session_id, "abc"))
 
-# Will generate a test for each browser and os configuration
-def test_generator_verify_google():
-    for browser in browsers:
-        yield verify_google, browser
 
 @with_setup(None, teardown_func)
-def verify_google(browser):
+def test_verify_google():
     global driver
-    driver = launchBrowser(browser)
+    driver = webdriver.Remote(
+        command_executor = "http:/{}:{}@ondemand.saucelabs.com:80/wd/hub".format(username, access_key),
+        desired_capabilities = caps);
+
     driver.get("http://www.google.com")
     assert ("Google" in driver.title), "Unable to load google page"
+
     elem = driver.find_element_by_name("q")
     elem.send_keys("Sauce Labs")
     elem.submit()
