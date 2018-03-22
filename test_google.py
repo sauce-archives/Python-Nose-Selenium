@@ -39,8 +39,10 @@ def test_verify_google():
         desired_capabilities = caps);
 
     driver.get("http://www.google.com")
-    assert ("Google" in driver.title), "Unable to load google page"
+    assert "Google" in driver.title
 
-    elem = driver.find_element_by_name("q")
-    elem.send_keys("Sauce Labs")
-    elem.submit()
+    driver.find_element_by_name("q").send_keys("Sauce Labs")
+    driver.find_element_by_name("q").submit()
+
+    assert "Sauce Labs" in driver.title
+
