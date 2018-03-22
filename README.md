@@ -21,13 +21,13 @@ This code is provided on an "AS-IS” basis without warranty of any kind, either
 3. Project Dependencies
 	* Install packages (Use sudo if necessary)
 	```
-	$ pip install selenium sauceclient nose==1.1.0
+	$ pip install -r requirements.txt
 	```
 ### Running Tests
 
 Tests in Parallel:
 	```
-	$ nosetests --processes=8 --process-timeout=120
+	$ nosetests --processes=2 --process-timeout=120
 	```
 
 [Sauce Labs Dashboard](https://saucelabs.com/beta/dashboard/)
