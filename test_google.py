@@ -4,6 +4,8 @@ import inspect
 from nose.tools import with_setup
 from selenium import webdriver
 from sauceclient import SauceClient
+from selenium.webdriver.remote.remote_connection import RemoteConnection
+
 
 browser = {
     "platform": "Windows 10",
@@ -16,8 +18,7 @@ access_key = os.environ['SAUCE_ACCESS_KEY']
 
 caps = {}
 caps.update(browser)
-caps['name'] = inspect.stack()[1][3]
-caps['build'] = os.environ.get('SAUCE_BUILD_NAME') or 'nosebuild'
+caps['build'] = 'nosebuild'
 
 
 def teardown_func():
@@ -32,8 +33,9 @@ def teardown_func():
 @with_setup(None, teardown_func)
 def test_verify_google():
     global driver
+    executor = RemoteConnection("http://{}:{}@ondemand.saucelabs.com:80/wd/hub".format(username, access_key), resolve_ip=False)
     driver = webdriver.Remote(
-        command_executor = "http:/{}:{}@ondemand.saucelabs.com:80/wd/hub".format(username, access_key),
+        command_executor = executor,
         desired_capabilities = caps);
 
     driver.get("http://www.google.com")
