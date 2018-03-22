@@ -41,8 +41,17 @@ def test_verify_google():
     driver.get("http://www.google.com")
     assert "Google" in driver.title
 
+@with_setup(None, teardown_func)
+def test_search_sauce():
+    global driver
+    executor = RemoteConnection("http://{}:{}@ondemand.saucelabs.com:80/wd/hub".format(username, access_key), resolve_ip=False)
+    driver = webdriver.Remote(
+        command_executor = executor,
+        desired_capabilities = caps);
+
+    driver.get("http://www.google.com")
+    
     driver.find_element_by_name("q").send_keys("Sauce Labs")
     driver.find_element_by_name("q").submit()
 
     assert "Sauce Labs" in driver.title
-
